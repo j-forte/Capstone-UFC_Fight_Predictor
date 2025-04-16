@@ -210,6 +210,20 @@ def evaluate_model(model, X_test, y_test):
     print("Classification Report:")
     print(classification_report(y_test_decoded, y_pred))
 
+def get_fighter_averages(df, fighter_name: str, color_prefix: str):
+    red_cols = [col for col in df.columns if col.startswith("Red")]
+    blue_cols = [col for col in df.columns if col.startswith("Blue")]
+
+    red_df = df[df["RedFighter"] == fighter_name][red_cols].copy()
+    blue_df = df[df["BlueFighter"] == fighter_name][blue_cols].copy()
+
+    # Normalize column names
+    blue_df.columns = [col.replace("Blue", "Red", 1) for col in blue_df.columns]
+
+    all_fights = pd.concat([red_df, blue_df], ignore_index=True)
+
+    return all_fights.mean(numeric_only=True)
+
 def save_model(model, path):
     joblib.dump(model, path)
 

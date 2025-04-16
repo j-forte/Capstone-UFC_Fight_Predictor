@@ -177,8 +177,8 @@ def predict(stats: FighterStats):
     input_data = stats.features
     model_input_data = {}
 
-    red_fighter_row = df[df["RedFighter"] == stats.red_fighter_name].mean(numeric_only=True) if stats.red_fighter_name else {}
-    blue_fighter_row = df[df["BlueFighter"] == stats.blue_fighter_name].mean(numeric_only=True) if stats.blue_fighter_name else {}
+    red_fighter_row = f.get_fighter_averages(df, stats.red_fighter_name, "Red") if stats.red_fighter_name else {}
+    blue_fighter_row = f.get_fighter_averages(df, stats.blue_fighter_name, "Blue") if stats.blue_fighter_name else {}
 
     for col in feature_columns:
         if col in input_data:
@@ -190,7 +190,7 @@ def predict(stats: FighterStats):
         elif col in df.columns:
             model_input_data[col] = df[col].mean() if df[col].dtype != "O" else df[col].mode()[0]
         else:
-            model_input_data[col] = 0  # fallback
+            model_input_data[col] = 0  
 
     # Preprocessing
     model_input_df = pd.DataFrame([model_input_data])
