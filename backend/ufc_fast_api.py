@@ -16,12 +16,12 @@ from sklearn.exceptions import NotFittedError
 
 app = FastAPI()
 
-model = joblib.load("C:/Code/ddi_course/capstone_project/backend/models/ufc_model_v5.pkl")
-scaler = joblib.load("C:/Code/ddi_course/capstone_project/backend/model/scaler_v1.pkl")
-label_encoder = joblib.load("C:/Code/ddi_course/capstone_project/backend/model/label_encoder_v1.pkl")
-label_encoders = joblib.load("C:/Code/ddi_course/capstone_project/backend/model/label_encoders_dict_v1.pkl")
-feature_columns = joblib.load("C:/Code/ddi_course/capstone_project/backend/model/feature_columns_v1.pkl")
-df = pd.read_csv("C:/Code/ddi_course/capstone_project/backend/data/ufc-master.csv")
+model = joblib.load("C:/Code/capstone_project/backend/models/ufc_model_v5.pkl")
+scaler = joblib.load("C:/Code/capstone_project/backend/model/scaler_v1.pkl")
+label_encoder = joblib.load("C:/Code/capstone_project/backend/model/label_encoder_v1.pkl")
+label_encoders = joblib.load("C:/Code/capstone_project/backend/model/label_encoders_dict_v1.pkl")
+feature_columns = joblib.load("C:/Code/capstone_project/backend/model/feature_columns_v1.pkl")
+df = pd.read_csv("C:/Code/capstone_project/backend/data/ufc-master.csv")
 
 numerical_columns = [
         'RedOdds', 'BlueOdds', 'RedExpectedValue', 'BlueExpectedValue', 
@@ -62,7 +62,7 @@ def read_root():
 
 @app.get("/data")
 def return_data():
-    file_path = "C:/Code/ddi_course/capstone_project/backend/data/ufc-master.csv"
+    file_path = "C:/Code/capstone_project/backend/data/ufc-master.csv"
     return FileResponse(file_path, media_type='text/csv', filename="ufc-master.csv")
 
 @app.get("/test_predictions")
@@ -73,7 +73,7 @@ def get_test_predictions():
 @app.get("/model_predictions")
 def get_model_predictions():
     try:
-        df = pd.read_csv("C:/Code/ddi_course/capstone_project/backend/data/ufc-master.csv")
+        df = pd.read_csv("C:/Code/capstone_project/backend/data/ufc-master.csv")
 
         output_columns = ['RedFighter', 'BlueFighter', 'Winner']
 
