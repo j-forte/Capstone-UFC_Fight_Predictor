@@ -172,7 +172,7 @@ elif page == "Predict an Upcoming Fight":
         "BlueAvgTDPct": "Blue - Takedown Accuracy (%)",
         "BlueAvgSubAtt": "Blue - Submission Attempts"
     }
-
+    
     col1, col2 = st.columns(2)
 
     red_input = {}
@@ -181,9 +181,10 @@ elif page == "Predict an Upcoming Fight":
     data_response = requests.get(f"{API_URL}/data")
     if data_response.status_code == 200:
         df = pd.read_csv(io.StringIO(data_response.text)) 
-
+    fighter_names = sorted(df["RedFighter"].dropna().unique())
     with col1:
         st.markdown("### 🔴 Red Fighter")
+        red_fighter_name = st.selectbox("Select Red Fighter", fighter_names, key="red_fighter")
         for feature in [f for f in important_features if f.startswith("Red")]:
             red_input[feature] = st.number_input(
                 important_features[feature],
@@ -195,6 +196,7 @@ elif page == "Predict an Upcoming Fight":
 
     with col2:
         st.markdown("### 🔵 Blue Fighter")
+        blue_fighter_name = st.selectbox("Select Blue Fighter", fighter_names, key="blue_fighter")
         for feature in [f for f in important_features if f.startswith("Blue")]:
             blue_input[feature] = st.number_input(
                 important_features[feature],
@@ -207,7 +209,12 @@ elif page == "Predict an Upcoming Fight":
 
     if st.button("Predict Winner"):
         all_inputs = {**red_input, **blue_input}
-        response = requests.post(f"{API_URL}/predict", json={"features": all_inputs})
+        payload = {
+        "features": all_inputs,
+        "red_fighter_name": red_fighter_name,
+        "blue_fighter_name": blue_fighter_name
+        }
+        response = requests.post(f"{API_URL}/predict", json=payload)
 
         if response.status_code == 200:
             prediction = response.json()["prediction"]

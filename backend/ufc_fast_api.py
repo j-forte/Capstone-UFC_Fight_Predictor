@@ -13,6 +13,7 @@ import traceback
 from fastapi.responses import FileResponse
 from fastapi.responses import JSONResponse
 from sklearn.exceptions import NotFittedError
+from typing import Optional
 
 app = FastAPI()
 
@@ -55,6 +56,8 @@ categorical_columns = [
 
 class FighterStats(BaseModel):
     features: dict
+    red_fighter_name: Optional[str] = None
+    blue_fighter_name: Optional[str] = None
 
 @app.get("/")
 def read_root():
@@ -174,16 +177,23 @@ def predict(stats: FighterStats):
     input_data = stats.features
     model_input_data = {}
 
+    red_fighter_row = df[df["RedFighter"] == stats.red_fighter_name].mean(numeric_only=True) if stats.red_fighter_name else {}
+    blue_fighter_row = df[df["BlueFighter"] == stats.blue_fighter_name].mean(numeric_only=True) if stats.blue_fighter_name else {}
+
     for col in feature_columns:
         if col in input_data:
             model_input_data[col] = input_data[col]
+        elif col.startswith("Red") and col in red_fighter_row:
+            model_input_data[col] = red_fighter_row[col]
+        elif col.startswith("Blue") and col in blue_fighter_row:
+            model_input_data[col] = blue_fighter_row[col]
         elif col in df.columns:
             model_input_data[col] = df[col].mean() if df[col].dtype != "O" else df[col].mode()[0]
         else:
-            model_input_data[col] = 0
+            model_input_data[col] = 0  # fallback
 
+    # Preprocessing
     model_input_df = pd.DataFrame([model_input_data])
-
     model_input_df[numerical_columns] = scaler.transform(model_input_df[numerical_columns])
 
     for col in categorical_columns:
@@ -202,3 +212,37 @@ def predict(stats: FighterStats):
     prediction = label_encoder.inverse_transform([prediction_encoded])[0]
 
     return {"prediction": prediction}
+
+# @app.post("/predict")
+# def predict(stats: FighterStats):
+#     input_data = stats.features
+#     model_input_data = {}
+
+#     for col in feature_columns:
+#         if col in input_data:
+#             model_input_data[col] = input_data[col]
+#         elif col in df.columns:
+#             model_input_data[col] = df[col].mean() if df[col].dtype != "O" else df[col].mode()[0]
+#         else:
+#             model_input_data[col] = 0
+
+#     model_input_df = pd.DataFrame([model_input_data])
+
+#     model_input_df[numerical_columns] = scaler.transform(model_input_df[numerical_columns])
+
+#     for col in categorical_columns:
+#         if col in model_input_df.columns:
+#             le = label_encoders[col]
+#             val = model_input_df[col].values[0]
+#             if val not in le.classes_:
+#                 val = 'Unknown'
+#                 if 'Unknown' not in le.classes_:
+#                     le.classes_ = np.append(le.classes_, 'Unknown')
+#             model_input_df[col] = le.transform([val])
+
+#     model_input_df = model_input_df.reindex(columns=feature_columns)
+
+#     prediction_encoded = model.predict(model_input_df)[0]
+#     prediction = label_encoder.inverse_transform([prediction_encoded])[0]
+
+#     return {"prediction": prediction}
