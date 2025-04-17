@@ -186,8 +186,8 @@ def predict(payload: dict):
     red_name = payload.get("red_fighter_name")
     blue_name = payload.get("blue_fighter_name")
 
-    print("Received red_name:", red_name)
-    print("Received blue_name:", blue_name)
+    #print("Received red_name:", red_name)
+    #print("Received blue_name:", blue_name)
 
     red_row = df[df["RedFighter"].str.lower().str.strip() == red_name.lower().strip()]
     blue_row = df[df["BlueFighter"].str.lower().str.strip() == blue_name.lower().strip()]
@@ -204,11 +204,13 @@ def predict(payload: dict):
             model_input_data[col] = input_data[col]
         elif col in df.columns:
             if col.startswith('Red') and not red_row.empty:
-                model_input_data[col] = red_row.iloc[0][col]
+                val = red_row.iloc[0][col]
+                model_input_data[col] = val if pd.notna(val) else df[col].mean()
             elif col.startswith('Blue') and not blue_row.empty:
-                model_input_data[col] = blue_row.iloc[0][col]
+                val = blue_row.iloc[0][col]
+                model_input_data[col] = val if pd.notna(val) else df[col].mean()
             else:
-                model_input_data[col] = df[col].mean() if df[col].dtype != "O" else df[col].mode()[0] 
+                model_input_data[col] = df[col].mean() if df[col].dtype != "O" else df[col].mode()[0]
 
     model_input_df = pd.DataFrame([model_input_data])
     model_input_df[numerical_columns] = scaler.transform(model_input_df[numerical_columns])
