@@ -19,13 +19,13 @@ This dataset merges all public UFC datasets on Kaggle into a comprehensive datas
 While EDA wasn't my primary focus (since I already had a prediction goal in mind), I still explored a few key areas:
 
 ### 🟥🟦 Red vs. Blue Wins
-![Red vs Blue Wins](/capstone_project/frontend/images/red_blue_win.png)
+![Red vs Blue Wins](/images/red_blue_win.png)
 
 ### 💥 Fight Finish Types
-![Finish Types](/capstone_project/frontend/images/Finish_type.png)
+![Finish Types](//images/Finish_type.png)
 
 ### 📏 Winner Statistic Differences (e.g., Height)
-![Winner Height Difference](/capstone_project/frontend/images/winner_height_dif.png)
+![Winner Height Difference](/images/winner_height_dif.png)
 
 ---
 
@@ -83,13 +83,13 @@ I went through five iterations of models and landed on a **VotingClassifier** wh
 
 ### Final Model Scores
 
-![Model V5](/capstone_project/frontend/images/model_v5.png)
+![Model V5](/images/model_v5.png)
 
 ---
 
 ### Test Set Performance
 
-![Confusion Matrix - Test Set](/capstone_project/frontend/images/Confusion_matrix_test_set.png)
+![Confusion Matrix - Test Set](/images/Confusion_matrix_test_set.png)
 
 - ✅ Accuracy: **87%**  
 - 🎯 Precision: **90%**  
@@ -100,7 +100,7 @@ I went through five iterations of models and landed on a **VotingClassifier** wh
 
 ### Independent Standalone Dataset
 
-![Confusion Matrix - Standalone Test](/capstone_project/frontend/images/Confusion_matrix_stand_alone_test.png)
+![Confusion Matrix - Standalone Test](/images/Confusion_matrix_stand_alone_test.png)
 
 - ✅ Accuracy: **62%**  
 - 🎯 Precision: **71%**  
