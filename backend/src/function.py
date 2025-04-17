@@ -85,6 +85,7 @@ def preprocess_data(data):
     #return X, y, scaler, le
 
 def preprocess_input_train(df, numerical_columns, categorical_columns):
+    # Preprocess the data with MinMaxScaler and LabelEncoder for numerical and categorical columns
     X = df.copy()
     label_encoders = {}
 
@@ -103,6 +104,7 @@ def preprocess_input_train(df, numerical_columns, categorical_columns):
     return X, scaler, label_encoders
 
 def preprocess_input_test(df, scaler, label_encoders, numerical_columns, categorical_columns):
+    # Process the test data using the same scaler and label encoder as the training data
     X = df.copy()
 
     for col in numerical_columns:
@@ -120,19 +122,21 @@ def preprocess_input_test(df, scaler, label_encoders, numerical_columns, categor
     return X   
 
 def tune_models(X_train, y_train):
-
+    # Train the model with hyperparameter tuning using GridSearchCV
+    # handles the class imbalance using SMOTE
     smote = SMOTE(sampling_strategy='auto', random_state=42)
     X_resampled, y_resampled = smote.fit_resample(X_train, y_train)
 
-    
+    # Compute class weights for RandomForestClassifier and LogisticRegression
     class_weights = compute_class_weight('balanced', classes=np.array([0, 1]), y=y_resampled)
     class_weight_dict = {0: class_weights[0], 1: class_weights[1]} 
 
+    # Create classifiers for voting ensemble
     clf1 = RandomForestClassifier(class_weight='balanced', random_state=42)
     clf2 = xgb.XGBClassifier(scale_pos_weight=10, random_state=42, use_label_encoder=False, eval_metric='logloss')
     clf3 = LogisticRegression(class_weight='balanced', random_state=42)
 
-
+    # Define hyperparameter grids for each classifier
     rf_param_grid = {
     'n_estimators': [100, 200, 300, 500],  
     'max_depth': [None, 10, 20, 30],  
@@ -158,18 +162,22 @@ def tune_models(X_train, y_train):
     'class_weight': ['balanced', None]  
     }
 
+    # Perform GridSearchCV
     rf_search = GridSearchCV(clf1, rf_param_grid, cv=5, scoring='accuracy', n_jobs=-1, verbose=1)
     xgb_search = GridSearchCV(clf2, xgb_param_grid, cv=5, scoring='accuracy', n_jobs=-1, verbose=1)
     lr_search = GridSearchCV(clf3, lr_param_grid, cv=5, scoring='accuracy', n_jobs=-1, verbose=1)
 
+    # Fit the models
     rf_search.fit(X_resampled, y_resampled)
     xgb_search.fit(X_resampled, y_resampled)
     lr_search.fit(X_resampled, y_resampled)
 
+    # Get the best models parameters from gridsearch
     best_rf = rf_search.best_estimator_
     best_xgb = xgb_search.best_estimator_
     best_lr = lr_search.best_estimator_
 
+    # Create the ensemble model with the best estimators
     ensemble_model = VotingClassifier(estimators=[('rf', best_rf), ('xgb', best_xgb), ('lr', best_lr)], voting='soft')
 
     ensemble_model.fit(X_resampled, y_resampled)
@@ -178,7 +186,10 @@ def tune_models(X_train, y_train):
 
 def train_model(X_train, y_train):
     """
+    OUTDATED:
+    This was the original function to train the model without hyperparameter tuning
     train_model: Train the ensemble model without any hyperparameter tuning.
+    
     """
     label_encoder = LabelEncoder()
     y_train_encoded = label_encoder.fit_transform(y_train)
@@ -195,6 +206,7 @@ def train_model(X_train, y_train):
 def evaluate_model(model, X_test, y_test):
     """
     evaluate_model: Evaluate the trained model on the test data.
+    Automated evaluation using accuracy score and classification report.
     """
     y_pred_encoded = model.predict(X_test)
 
@@ -209,13 +221,15 @@ def evaluate_model(model, X_test, y_test):
     print(classification_report(y_test_decoded, y_pred))
 
 def get_fighter_averages(df, fighter_name: str, color_prefix: str):
+    """
+    This processes the selected figher from the Streamlit inputs and returns the average statistics for that fighter.
+    """
     red_cols = [col for col in df.columns if col.startswith("Red")]
     blue_cols = [col for col in df.columns if col.startswith("Blue")]
 
     red_df = df[df["RedFighter"] == fighter_name][red_cols].copy()
     blue_df = df[df["BlueFighter"] == fighter_name][blue_cols].copy()
 
-    # Normalize column names
     blue_df.columns = [col.replace("Blue", "Red", 1) for col in blue_df.columns]
 
     all_fights = pd.concat([red_df, blue_df], ignore_index=True)
@@ -223,12 +237,20 @@ def get_fighter_averages(df, fighter_name: str, color_prefix: str):
     return all_fights.mean(numeric_only=True)
 
 def save_model(model, path):
+    # Save the trained model to a file
     joblib.dump(model, path)
 
 def load_model(path):
+    # Was not used in code but was created just incase
     return joblib.load(path)
 
 def main():
+    """
+    Main function to run the entire pipeline.
+    Creating multiple directories to save the model and scaler.
+    For model improvement and version control
+    """
+    # create directories for saving the model and scaler
     os.makedirs("C:/Code/ddi_course/capstone_project/model", exist_ok=True)
 
     numerical_columns = [

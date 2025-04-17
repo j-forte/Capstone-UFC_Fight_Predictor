@@ -18,6 +18,7 @@ import logging
 
 app = FastAPI()
 
+# Global load of model, scaler, and label encoders
 model = joblib.load("C:/Code/capstone_project/backend/models/ufc_model_v5.pkl")
 scaler = joblib.load("C:/Code/capstone_project/backend/model/scaler_v1.pkl")
 label_encoder = joblib.load("C:/Code/capstone_project/backend/model/label_encoder_v1.pkl")
@@ -25,6 +26,7 @@ label_encoders = joblib.load("C:/Code/capstone_project/backend/model/label_encod
 feature_columns = joblib.load("C:/Code/capstone_project/backend/model/feature_columns_v1.pkl")
 df = pd.read_csv("C:/Code/capstone_project/backend/data/ufc-master.csv")
 
+# Global defining of numerical and categorical columns
 numerical_columns = [
         'RedOdds', 'BlueOdds', 'RedExpectedValue', 'BlueExpectedValue', 
         'BlueAvgSigStrLanded', 'BlueAvgSigStrPct', 'BlueAvgSubAtt', 'BlueAvgTDLanded', 
@@ -54,26 +56,30 @@ categorical_columns = [
         'WeightClass', 'Gender', 'BlueStance', 'RedStance', 'BetterRank'
     ]
 
-
+# Define the Pydantic model for the request body
 class FighterStats(BaseModel):
     features: dict
     red_fighter_name: Optional[str] = None
     blue_fighter_name: Optional[str] = None
 
+# added for testing purposes
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the UFC Prediction API!"}
 
+# required to return the data file to the front end
 @app.get("/data")
 def return_data():
     file_path = "C:/Code/capstone_project/backend/data/ufc-master.csv"
     return FileResponse(file_path, media_type='text/csv', filename="ufc-master.csv")
 
+# returns the test set CSV file to the front end
 @app.get("/test_predictions")
 def get_test_predictions():
     test_set = pd.read_csv("data/upcoming_predictions.csv")
     return test_set.to_dict(orient="records")
 
+# returns the model predictions for the full data set without Winner column
 @app.get("/model_predictions")
 def get_model_predictions():
     try:
@@ -173,6 +179,7 @@ def get_model_predictions():
 #     except Exception as e:
 #         return {"error model pred endpoint": str(e), "x columns": X.columns}
 
+# front end will send user input to this endpoint for predictions and filling of missing values from fighter stats
 @app.post("/predict")
 def predict(payload: dict):
     input_data = payload.get("features", {})

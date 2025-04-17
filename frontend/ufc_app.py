@@ -1,3 +1,6 @@
+"""
+Front end for UFC Fight Outcome Prediction Tool using Streamlit.
+"""
 import streamlit as st
 import requests
 import pandas as pd
@@ -11,10 +14,12 @@ import plotly.express as px
 st.title("🥊 UFC Fight Outcome Prediction Tool")
 
 st.sidebar.header("Menu")
+# add a sidebar with a selectbox for navigation
 page = st.sidebar.selectbox("Choose a Page", ["Starting Data", "Test Set Predictions", "Predict an Upcoming Fight", "Conclusion"])
 
 API_URL = "http://localhost:8000"  
 
+# Set page configuration for starting page
 if page == "Starting Data":
     
     data_response = requests.get(f"{API_URL}/data")
@@ -72,12 +77,12 @@ if page == "Starting Data":
     else:
         st.error("Failed to fetch data from the backend API. Please check the /data endpoint or your API server.")
 
-
+# set page configuration for test set predictions
 elif page == "Test Set Predictions":
     st.header("📈 Test Set Results and Verification")
 
     tab1, tab2 = st.tabs(["Test Set Predictions", "Model Predictions"])
-
+    # tab1 for test set predicitons for the independent test set
     with tab1:
         response = requests.get(f"{API_URL}/test_predictions")
         if response.status_code == 200:
@@ -118,7 +123,7 @@ elif page == "Test Set Predictions":
                 st.pyplot(fig)
         else:
             st.error("Failed to fetch predictions.")
-    
+    # tab2 for model prediction for the training set of data
     with tab2:
 
         other_response = requests.get(f"{API_URL}/model_predictions")
@@ -164,10 +169,12 @@ elif page == "Test Set Predictions":
             print(f"Failed to fetch predictions. Status code: {other_response.status_code}")
             print(other_response.text)
 
+# set page configuration for our fighter prediciton model
 elif page == "Predict an Upcoming Fight":
     st.header("🔮 Predict an Upcoming Fight")
     st.write("Enter fighter stats to make a prediction:")
 
+    # establish the api url inputs for the red and blue fighters
     important_features = {
         "RedWinsByKO": "Red - Wins by Knockout",
         "RedWinsBySubmission": "Red - Wins by Submission",
@@ -191,12 +198,15 @@ elif page == "Predict an Upcoming Fight":
     red_input = {}
     blue_input = {}
 
+    # Fetch the data from the API
     data_response = requests.get(f"{API_URL}/data")
     if data_response.status_code == 200:
         df = pd.read_csv(io.StringIO(data_response.text)) 
 
+    # get the unique fighter names from the dataset
     fighter_names =pd.concat([df["RedFighter"], df["BlueFighter"]]).dropna().str.strip().str.title().unique()
 
+    # Streamlit UI for selection of Red fighters input information
     with col1:
         st.markdown("### 🔴 Red Fighter")
         red_fighter_name = st.selectbox("Select Red Fighter", fighter_names, key="red_fighter")
@@ -209,7 +219,7 @@ elif page == "Predict an Upcoming Fight":
                 value=float(df[feature].mean()),
                 step=1.0
             )
-
+    # Streamlit UI for selection of Blue fighters input information
     with col2:
         st.markdown("### 🔵 Blue Fighter")
         blue_fighter_name = st.selectbox("Select Blue Fighter", fighter_names, key="blue_fighter")
@@ -223,7 +233,7 @@ elif page == "Predict an Upcoming Fight":
                 step=1.0,
                 key=f"blue_{feature}"
             )
-
+    # initaties the prediction button for fight prediction
     if st.button("Predict Winner"):
         all_inputs = {**red_input, **blue_input}
         payload = {
@@ -239,6 +249,7 @@ elif page == "Predict an Upcoming Fight":
         else:
             st.error("Prediction failed. Please try again.")
 
+# set page configuration for conclusion page
 if page == "Conclusion":
     st.header("📜 Conclusion")
     st.markdown("""
