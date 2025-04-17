@@ -181,7 +181,9 @@ elif page == "Predict an Upcoming Fight":
     data_response = requests.get(f"{API_URL}/data")
     if data_response.status_code == 200:
         df = pd.read_csv(io.StringIO(data_response.text)) 
-    fighter_names = sorted(df["RedFighter"].dropna().unique())
+
+    fighter_names =pd.concat([df["RedFighter"], df["BlueFighter"]]).dropna().str.strip().str.title().unique()
+    
     with col1:
         st.markdown("### 🔴 Red Fighter")
         red_fighter_name = st.selectbox("Select Red Fighter", fighter_names, key="red_fighter")

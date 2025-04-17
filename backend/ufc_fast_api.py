@@ -14,6 +14,7 @@ from fastapi.responses import FileResponse
 from fastapi.responses import JSONResponse
 from sklearn.exceptions import NotFittedError
 from typing import Optional
+import logging
 
 app = FastAPI()
 
@@ -105,7 +106,7 @@ def get_model_predictions():
             'BBantamweightRank', 'BFlyweightRank', 'BPFPRank', 'FinishRound',
             'RedDecOdds', 'BlueDecOdds', 'RSubOdds', 'BSubOdds', 'RKOOdds', 'BKOOdds', 
             'WeightClass', 'Gender', 'BlueStance', 'RedStance', 'BetterRank',
-            'RedFighter', 'BlueFighter', 'Winner'  # ✅ Include for output
+            'RedFighter', 'BlueFighter', 'Winner'  
         ]
 
         new_df = df[[col for col in required_features if col in df.columns]]
@@ -177,20 +178,29 @@ def predict(stats: FighterStats):
     input_data = stats.features
     model_input_data = {}
 
-    red_fighter_row = f.get_fighter_averages(df, stats.red_fighter_name, "Red") if stats.red_fighter_name else {}
-    blue_fighter_row = f.get_fighter_averages(df, stats.blue_fighter_name, "Blue") if stats.blue_fighter_name else {}
+    red_name = input_data.get("red_fighter_name")
+    blue_name = input_data.get("blue_fighter_name")
+
+    red_row = df[df["RedFighter"].str.lower().str.strip() == red_name.lower().strip()]
+    blue_row = df[df["BlueFighter"].str.lower().str.strip() == blue_name.lower().strip()]
+
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    if red_name is None or blue_name is None:
+        logger.info(f"Red Fighter Match:\n{red_name}")
+        logger.info(f"Blue Fighter Match:\n{blue_name}")
+        logger.info(f"Received input: {input_data}")
 
     for col in feature_columns:
-        if col in input_data:
+        if col in input_data and input_data[col] is not None:
             model_input_data[col] = input_data[col]
-        elif col.startswith("Red") and col in red_fighter_row:
-            model_input_data[col] = red_fighter_row[col]
-        elif col.startswith("Blue") and col in blue_fighter_row:
-            model_input_data[col] = blue_fighter_row[col]
         elif col in df.columns:
-            model_input_data[col] = df[col].mean() if df[col].dtype != "O" else df[col].mode()[0]
-        else:
-            model_input_data[col] = 0  
+            if col.startswith('Red') and not red_row.empty:
+                model_input_data[col] = red_row.iloc[0][col]
+            elif col.startswith('Blue') and not blue_row.empty:
+                model_input_data[col] = blue_row.iloc[0][col]
+            else:
+                model_input_data[col] = df[col].mean() if df[col].dtype != "O" else df[col].mode()[0] 
 
     # Preprocessing
     model_input_df = pd.DataFrame([model_input_data])
