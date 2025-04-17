@@ -26,8 +26,7 @@ if page == "Starting Data":
         ### Intro  
         **James Forte** from the 513th MI BDE  
         **Capstone Project:** UFC Fight Night Dataset  
-        **Date Range:** 2010–2024  
-
+        
         ---
 
         ### Project Question  
@@ -36,7 +35,7 @@ if page == "Starting Data":
         """)
 
         st.header("📊 Explore Your Data")
-
+        st.write("Data Date Range: 2010–2024")
         winner_counts = df['Winner'].value_counts().reset_index()
         winner_counts.columns = ['Winner', 'Count']
 
@@ -200,8 +199,8 @@ elif page == "Predict an Upcoming Fight":
 
     with col1:
         st.markdown("### 🔴 Red Fighter")
-        #red_fighter_name = st.selectbox("Select Red Fighter", fighter_names, key="red_fighter")
-        red_fighter_name = st.text_input("Enter Red Fighter Name", value="", key="red_fighter")
+        red_fighter_name = st.selectbox("Select Red Fighter", fighter_names, key="red_fighter")
+        #red_fighter_name = st.text_input("Enter Red Fighter Name", value="", key="red_fighter")
         for feature in [f for f in important_features if f.startswith("Red")]:
             red_input[feature] = st.number_input(
                 important_features[feature],
@@ -213,8 +212,8 @@ elif page == "Predict an Upcoming Fight":
 
     with col2:
         st.markdown("### 🔵 Blue Fighter")
-        #blue_fighter_name = st.selectbox("Select Blue Fighter", fighter_names, key="blue_fighter")
-        blue_fighter_name = st.text_input("Enter Red Fighter Name", value="", key="blue_fighter")
+        blue_fighter_name = st.selectbox("Select Blue Fighter", fighter_names, key="blue_fighter")
+        #blue_fighter_name = st.text_input("Enter Red Fighter Name", value="", key="blue_fighter")
         for feature in [f for f in important_features if f.startswith("Blue")]:
             blue_input[feature] = st.number_input(
                 important_features[feature],
