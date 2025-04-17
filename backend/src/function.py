@@ -88,14 +88,12 @@ def preprocess_input_train(df, numerical_columns, categorical_columns):
     X = df.copy()
     label_encoders = {}
 
-    # Handle numericals
     for col in numerical_columns:
         X[col] = pd.to_numeric(X[col], errors='coerce').fillna(0)
 
     scaler = MinMaxScaler()
     X[numerical_columns] = scaler.fit_transform(X[numerical_columns])
 
-    # Handle categoricals
     for col in categorical_columns:
         X[col] = X[col].fillna("Unknown").astype(str)
         le = LabelEncoder()
