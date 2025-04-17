@@ -174,22 +174,23 @@ def get_model_predictions():
 #         return {"error model pred endpoint": str(e), "x columns": X.columns}
 
 @app.post("/predict")
-def predict(stats: FighterStats):
-    input_data = stats.features
-    model_input_data = {}
+def predict(payload: dict):
+    input_data = payload.get("features", {})
+    red_name = payload.get("red_fighter_name")
+    blue_name = payload.get("blue_fighter_name")
 
-    red_name = input_data.get("red_fighter_name")
-    blue_name = input_data.get("blue_fighter_name")
+    print("Received red_name:", red_name)
+    print("Received blue_name:", blue_name)
 
     red_row = df[df["RedFighter"].str.lower().str.strip() == red_name.lower().strip()]
     blue_row = df[df["BlueFighter"].str.lower().str.strip() == blue_name.lower().strip()]
 
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
-    if red_name is None or blue_name is None:
-        logger.info(f"Red Fighter Match:\n{red_name}")
-        logger.info(f"Blue Fighter Match:\n{blue_name}")
-        logger.info(f"Received input: {input_data}")
+    
+    logger.info(f"Red Fighter Match:\n{red_name}")
+    logger.info(f"Blue Fighter Match:\n{blue_name}")
+    model_input_data = {}
 
     for col in feature_columns:
         if col in input_data and input_data[col] is not None:
@@ -202,7 +203,6 @@ def predict(stats: FighterStats):
             else:
                 model_input_data[col] = df[col].mean() if df[col].dtype != "O" else df[col].mode()[0] 
 
-    # Preprocessing
     model_input_df = pd.DataFrame([model_input_data])
     model_input_df[numerical_columns] = scaler.transform(model_input_df[numerical_columns])
 

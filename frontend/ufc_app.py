@@ -183,7 +183,7 @@ elif page == "Predict an Upcoming Fight":
         df = pd.read_csv(io.StringIO(data_response.text)) 
 
     fighter_names =pd.concat([df["RedFighter"], df["BlueFighter"]]).dropna().str.strip().str.title().unique()
-    
+
     with col1:
         st.markdown("### 🔴 Red Fighter")
         red_fighter_name = st.selectbox("Select Red Fighter", fighter_names, key="red_fighter")
