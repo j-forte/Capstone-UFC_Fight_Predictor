@@ -1,12 +1,12 @@
-# 🥋 Galvanize DDI Cohort 11 Capstone Project: UFC Prediction
+# Galvanize DDI Cohort 11 Capstone Project: UFC Prediction
 
-## 🎯 Background & Purpose
+## Background & Purpose
 
 This project was created as my final capstone for the **Galvanize DDI Cohort 11** course. I chose this dataset because I believed it would be a great evaluation of the skills I’ve learned. As an MMA fan, it was exciting to work with real UFC data and explore ways to predict fight outcomes.
 
 ---
 
-## 📦 Dataset Info
+## Dataset Info
 
 **Source:**  
 [Ultimate UFC Dataset on Kaggle](https://www.kaggle.com/datasets/mdabbert/ultimate-ufc-dataset/data)  
@@ -14,22 +14,22 @@ This dataset merges all public UFC datasets on Kaggle into a comprehensive datas
 
 ---
 
-## 🔍 Data Exploration
+## Data Exploration
 
 While EDA wasn't my primary focus (since I already had a prediction goal in mind), I still explored a few key areas:
 
 ### 🟥🟦 Red vs. Blue Wins
-![Red vs Blue Wins](images/red_blue_win.png)
+![Red vs Blue Wins](/capstone_project/frontend/images/red_blue_win.png)
 
 ### 💥 Fight Finish Types
-![Finish Types](images/Finish_type.png)
+![Finish Types](/capstone_project/frontend/images/Finish_type.png)
 
 ### 📏 Winner Statistic Differences (e.g., Height)
-![Winner Height Difference](images/winner_height_dif.png)
+![Winner Height Difference](/capstone_project/frontend/images/winner_height_dif.png)
 
 ---
 
-## 🧹 Data Processing
+## Data Processing
 
 To prepare the data for modeling, I cleaned and scaled numerical features and encoded categorical ones using `LabelEncoder`.
 
@@ -51,7 +51,7 @@ def preprocess_input_train(df, numerical_columns, categorical_columns):
         label_encoders[col] = le
 
     return X, scaler, label_encoders
-
+```
 ## Hypothesis Testing
 
 **Question:**  
@@ -83,13 +83,13 @@ I went through five iterations of models and landed on a **VotingClassifier** wh
 
 ### Final Model Scores
 
-![Model V5](images/model_v5.png)
+![Model V5](/capstone_project/frontend/images/model_v5.png)
 
 ---
 
 ### Test Set Performance
 
-![Confusion Matrix - Test Set](images/Confusion_matrix_test_set.png)
+![Confusion Matrix - Test Set](/capstone_project/frontend/images/Confusion_matrix_test_set.png)
 
 - ✅ Accuracy: **87%**  
 - 🎯 Precision: **90%**  
@@ -100,7 +100,7 @@ I went through five iterations of models and landed on a **VotingClassifier** wh
 
 ### Independent Standalone Dataset
 
-![Confusion Matrix - Standalone Test](images/Confusion_matrix_stand_alone_test.png)
+![Confusion Matrix - Standalone Test](/capstone_project/frontend/images/Confusion_matrix_stand_alone_test.png)
 
 - ✅ Accuracy: **62%**  
 - 🎯 Precision: **71%**  

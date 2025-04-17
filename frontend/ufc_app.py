@@ -11,7 +11,7 @@ import plotly.express as px
 st.title("🥊 UFC Fight Outcome Prediction Tool")
 
 st.sidebar.header("Menu")
-page = st.sidebar.selectbox("Choose a Page", ["Starting Data", "Test Set Predictions", "Predict an Upcoming Fight"])
+page = st.sidebar.selectbox("Choose a Page", ["Starting Data", "Test Set Predictions", "Predict an Upcoming Fight", "Conclusion"])
 
 API_URL = "http://localhost:8000"  
 
@@ -20,6 +20,20 @@ if page == "Starting Data":
     data_response = requests.get(f"{API_URL}/data")
     if data_response.status_code == 200:
         df = pd.read_csv(io.StringIO(data_response.text)) 
+
+        st.header("Introduction")
+        st.markdown("""
+        ### Intro  
+        **James Forte** from the 513th MI BDE  
+        **Capstone Project:** UFC Fight Night Dataset  
+        **Date Range:** 2010–2024  
+
+        ---
+
+        ### Project Question  
+        **Do red fighters win more often than blue fighters?**  
+        In the UFC, there are always two fighters per match — one assigned to the **Red Corner** and the other to the **Blue Corner**.
+        """)
 
         st.header("📊 Explore Your Data")
 
@@ -186,7 +200,8 @@ elif page == "Predict an Upcoming Fight":
 
     with col1:
         st.markdown("### 🔴 Red Fighter")
-        red_fighter_name = st.selectbox("Select Red Fighter", fighter_names, key="red_fighter")
+        #red_fighter_name = st.selectbox("Select Red Fighter", fighter_names, key="red_fighter")
+        red_fighter_name = st.text_input("Enter Red Fighter Name", value="", key="red_fighter")
         for feature in [f for f in important_features if f.startswith("Red")]:
             red_input[feature] = st.number_input(
                 important_features[feature],
@@ -198,7 +213,8 @@ elif page == "Predict an Upcoming Fight":
 
     with col2:
         st.markdown("### 🔵 Blue Fighter")
-        blue_fighter_name = st.selectbox("Select Blue Fighter", fighter_names, key="blue_fighter")
+        #blue_fighter_name = st.selectbox("Select Blue Fighter", fighter_names, key="blue_fighter")
+        blue_fighter_name = st.text_input("Enter Red Fighter Name", value="", key="blue_fighter")
         for feature in [f for f in important_features if f.startswith("Blue")]:
             blue_input[feature] = st.number_input(
                 important_features[feature],
@@ -223,3 +239,15 @@ elif page == "Predict an Upcoming Fight":
             st.success(f"🏆 Predicted Winner: **{prediction}** Fighter")
         else:
             st.error("Prediction failed. Please try again.")
+
+if page == "Conclusion":
+    st.header("📜 Conclusion")
+    st.markdown("""
+    - **Model Performance:** The model achieved an accuracy of 87% on the test data, indicating a strong ability to predict fight outcomes based on fighter statistics.
+    - **Future Work:** Further improvements could include hyperparameter tuning, feature engineering, and exploring advanced models like ensemble methods or deep learning.
+    """)
+    st.header("📅 Upcoming Fight 26 APR 2025")
+    st.image("images/fight_night_card.png", caption="UFC Fight Night", use_column_width=True)
+    st.markdown("""**Predicted Winner:** Blue Fighter - Carlos Prates  
+    _Official predictions have Ian Machado Garry as the winner of the fight, but only by slight margins._
+    """)
