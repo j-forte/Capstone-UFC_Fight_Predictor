@@ -11,4 +11,4 @@ COPY models .
 COPY src .
 COPY ufc_fast_api.py .
 
-CMD ["python", "-m", "uvicorn", "main:app", "--host","0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "ufc_fast_api:app", "--host","0.0.0.0", "--port", "8000"]
