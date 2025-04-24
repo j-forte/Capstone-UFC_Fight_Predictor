@@ -29,7 +29,7 @@ if page == "Starting Data":
         st.header("Introduction")
         st.markdown("""
         ### Intro  
-        **James Forte** from the 513th MI BDE  
+        **James Forte**   
         **Capstone Project:** UFC Fight Night Dataset  
         
         ---
